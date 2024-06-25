@@ -81,5 +81,6 @@ while True:
     for line in lines:
         pygame.draw.rect(screen, green, line)
     pygame.draw.circle(screen, red, (player_x, player_y), player_radius)
+    pygame.display.set_caption(f'x: {player_x} y: {player_y}')
     pygame.display.update()
     clock.tick(60)

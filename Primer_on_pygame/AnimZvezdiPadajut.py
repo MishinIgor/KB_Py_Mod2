@@ -18,7 +18,7 @@ star_list = []
 for i in range(50):
     x = random.randrange(screen_width)
     y = random.randrange(-200, -50)
-    speed = random.randrange(1, 5)
+    speed = random.randrange(1, 9)
     star_list.append([x, y, speed])
 score = 0
 

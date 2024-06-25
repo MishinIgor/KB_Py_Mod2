@@ -23,7 +23,7 @@ background = pygame.Surface((WIDTH,HEIGHT))
 background.fill(pygame.Color(COLOR_LIST[current_color_index]))
 
 button_font = pygame.font.SysFont('Verdana',15) #используем шрифт Verbana
-button_text_color = pygame.Color('black')
+button_text_color = pygame.Color(COLOR_LIST[1])
 button_rect = pygame.Rect(100,115,100,50)
 button_color = pygame.Color('gray')
 button_text = button_font.render('Смена', True, button_color)

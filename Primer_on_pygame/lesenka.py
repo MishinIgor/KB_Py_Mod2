@@ -1,7 +1,7 @@
 import pygame
 
 pygame.init()
-WINDOW_WIDTH = 500
+WINDOW_WIDTH = 600
 WINDOW_HEIGHT = 500
 game_display = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption('Вверх по лестнице')
@@ -28,7 +28,7 @@ def game_loop():
     step_y = WINDOW_HEIGHT - STEP_HEIGHT
     # создаем счетчик шагов
     step_count = 0
-
+    upflag = True
     while not game_exit:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -41,6 +41,23 @@ def game_loop():
                     player_x += 20
                     player_y -= 20
                     step_count += 1
+                if event.key == pygame.K_LEFT:
+                    # удаляем игрока из предыдущей позиции
+                    pygame.draw.circle(game_display, (0, 0, 0), (player_x, player_y), PLAYER_RADIUS)
+                    # обновляем позицию и счет
+                    player_x -= 20
+                    player_y += 20
+                    step_count += 1
+                if event.key == pygame.K_UP:
+                    # удаляем игрока из предыдущей позиции
+                    pygame.draw.circle(game_display, (0, 0, 0), (player_x, player_y), PLAYER_RADIUS)
+                    # обновляем позицию и счет
+                    if upflag == True:
+                        player_y += 40
+                        upflag = not(upflag)
+                    else:
+                        player_y -= 40
+                        upflag = not(upflag)
 
         # рисуем лестницу
         while step_x < WINDOW_WIDTH and step_y >= 0:
@@ -54,7 +71,7 @@ def game_loop():
         # подсчитываем сделанные шаги
         pygame.draw.rect(game_display, (0, 0, 0), (10, 10, 100, FONT_SIZE))
         font = pygame.font.SysFont('Arial', FONT_SIZE)
-        text = font.render(f'Шаг: {str(step_count)}', True, FONT_COLOR)
+        text = font.render(f'Шаг: {step_count}', True, FONT_COLOR)
         game_display.blit(text, (10, 10))
         pygame.display.update()
         clock.tick(60)

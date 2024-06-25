@@ -2,8 +2,8 @@ import pygame
 import random
 
 pygame.init()
-screen_width = 640
-screen_height = 480
+screen_width = 800
+screen_height = 800
 screen = pygame.display.set_mode((screen_width, screen_height))
 
 # цвета окружностей

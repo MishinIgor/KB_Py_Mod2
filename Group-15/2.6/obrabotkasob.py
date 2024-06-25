@@ -19,7 +19,7 @@ background = pygame.Surface(WINDOW_SIZE)
 background.fill(pygame.Color(COLOR_LIST[keycolor]))
 
 button_font = pygame.font.SysFont('Verdana',15) #используем шрифт Verdana и размер 15 для текста кнопки
-button_text_color = pygame.Color(COLOR_LIST["синий"])
+button_text_color = pygame.Color(COLOR_LIST["мокрый асфальт"])
 button_color = pygame.Color('gray')
 button_rect = pygame.Rect(100,115,100,50)
 button_text = button_font.render('Смена!', True, button_text_color)

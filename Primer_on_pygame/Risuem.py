@@ -7,6 +7,7 @@ screen_height = 480
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Геометрические фигуры")
 
+#Описываем цвета
 black = (0, 0, 0)
 white = (255, 255, 255)
 red = (255, 0, 0)

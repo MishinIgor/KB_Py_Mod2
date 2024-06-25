@@ -2,11 +2,11 @@ import pygame
 import math
 
 pygame.init()
-screen_width = 400
-screen_height = 480
+screen_width = 600
+screen_height = 600
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Драматическое столкновение")
-
+font = pygame.font.SysFont("Verdana", 45)
 # размеры и позиция окружности
 circle_pos = [screen_width/2, 50]
 circle_radius = 20
@@ -23,7 +23,7 @@ green = (0, 255, 0)
 red = (255, 0, 0)
 
 # скорость движения окружности
-speed = 5
+speed = 3
 
 while True:
     for event in pygame.event.get():
@@ -59,7 +59,12 @@ while True:
     # останавливаем движение окружности, если она
     # столкнулась с прямоугольником
     if circle_pos[1] + circle_radius >= rect_pos[1] - rect_height/2:
-        speed = 0
-
+        speed = 0.5
+        score_text = font.render("Игра окончена", True, black)
+        screen.blit(score_text, (screen_width/2-100, screen_height/2))
+        if circle_pos[1]-circle_radius>= rect_pos[1] - rect_height/2:
+            speed = 0
+            circle_pos[0] += 1
+        pygame.display.flip()
     # задаем частоту обновления экрана
     pygame.time.Clock().tick(60)
