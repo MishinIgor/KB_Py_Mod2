@@ -24,23 +24,43 @@ INDENT = 1 # размер отступа между полями
 FOOTER = 70
 TEXT_SIZE = 25
 TRY_GAME = True
-TICK = 0
+PLAY_SOUND = 0
 ADD = 5
 #Задаём размеры игрового окна
-HEIGHT = 620
+HEIGHT = RECT_SIZE*2+HEADER+FOOTER+COUNT_RECTS*(RECT_SIZE+INDENT)
 WIDTH = RECT_SIZE*2+(RECT_SIZE+INDENT)*COUNT_RECTS # Ширина состоит из боковых отступов размером ед. поля и кол. полей умнож. на отпуступы+размер ед. поля.
+#Создаём змейку и еду
+class Snake:
+    def __init__(self,x,y):
+        self.x = x
+        self.y = y
+    def inside(self):
+        return 0 <= self.x < COUNT_RECTS and 0 <= self.y < COUNT_RECTS
+    def __eq__(self, other):
+        return isinstance(other,Snake) and self.x == other.x and self.y == other.y
 #Дополнительные переменные
+vektor = 'вправо'
+x_row = 0
+y_col = 1
 points = 0 # Подсчёт очков
+snake_rect = [Snake(COUNT_RECTS//2,COUNT_RECTS//2)] #Список где хранится координаты змеи
 #Функции
-def generate_map(column,row): #Функция генерирует координаты нового поля для цикла построения игровой карты
-    return [RECT_SIZE+column*RECT_SIZE+INDENT*(column+1), # координаты по x
+def generate_obj(color,row,column): #Функция генерирует координаты нового поля для цикла построения игровой карты
+    return pygame.draw.rect(screen,color,[RECT_SIZE+column*RECT_SIZE+INDENT*(column+1), # координаты по x
             HEADER+RECT_SIZE/2+row*RECT_SIZE+INDENT*(row+1), # координаты по y
             RECT_SIZE,RECT_SIZE # Размеры клетки Ширина х Высота
-            ]
+            ])
 def display_text(text,font_size,x,y,color=COLOR_LIST["белый"]): #Функция написания текста
     font = pygame.font.Font(None, font_size)
     text_surface = font.render(text,True,color)
     screen.blit(text_surface,(x,y))
+def random_food_block():
+    x = random.randint(0,COUNT_RECTS-1)
+    y = random.randint(0,COUNT_RECTS-1)
+    
+    food_block = Snake(x,y)
+    return food_block
+food = random_food_block()  # Генерируем еду
 #Рисуем окно
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption(f'Питон длинной {points} попугаев') #Выводим в заголовке кол. очков
@@ -56,20 +76,46 @@ while play_game:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             play_game = False
-        #Возможность остановить и запустить игру(пока не работает)
-        if event.type == pygame.K_SPACE: # останавливаем падение звезд по клику
-            ADD = 0
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RETURN: # возобновляем движение вниз, если нажат Enter
-                ADD = 5
+            if event.key in (pygame.K_w,pygame.K_UP) and vektor != 'вниз': #движение вверх
+                vektor = 'вверх'
+                x_row = -1
+                y_col = 0
+            if event.key in (pygame.K_s,pygame.K_DOWN) and vektor != 'вверх': #движение вниз
+                vektor = 'вниз'
+                x_row = 1
+                y_col = 0
+            if event.key in (pygame.K_a,pygame.K_LEFT) and vektor != 'вправо': #движение влево
+                vektor = 'влево'
+                x_row = 0
+                y_col = -1
+            if event.key in (pygame.K_d,pygame.K_RIGHT) and vektor != 'влево': #движение вправо
+                vektor = 'вправо'
+                x_row = 0
+                y_col = 1
     screen.fill(COLOR_LIST["бирюзово-голубой"])
     #Цикл генерации игровой карты(по которой бегает змейка)
     for row in range(COUNT_RECTS):
         for column in range(COUNT_RECTS):
             if (column + row) % 2 == 0:
-                pygame.draw.rect(screen,COLOR_LIST["cерый"],generate_map(column,row))
+                color = COLOR_LIST["cерый"]
             else:
-                pygame.draw.rect(screen,COLOR_LIST["мокрый асфальт"],generate_map(column,row))
+                color = COLOR_LIST["мокрый асфальт"]
+            generate_obj(color,column,row)
+    generate_obj(COLOR_LIST["синий"],food.x,food.y)
+    for snake in snake_rect:
+        generate_obj(COLOR_LIST["тёмно-зелёный"],snake.x,snake.y)
+    head = snake_rect[-1]
+    new_head = Snake(head.x+x_row,head.y+y_col)
+    snake_rect.append(new_head)
+    snake_rect.pop(0)
+    if food == head:
+        snake_rect.append(food)
+        food = random_food_block()
+        points += 50
+    if not head.inside():
+        TRY_GAME = False
+    
     #Отрисовка Header
     pygame.draw.rect(screen,COLOR_LIST["изумрудный"],[0,0,WIDTH,HEADER])
     #Отрисовка Footer
@@ -81,22 +127,21 @@ while play_game:
                  COLOR_LIST['чёрный'])
     #Подсчёт очков и действия с ними
     if TRY_GAME == True:
-        points += ADD
-        pygame.display.set_caption(f'Питон длинной {points} попугаев') #Выводим в заголовке кол. очков
-        if points >= 100: #Условие имитирующее столкновение(переделать при добав. объектов)
-            pygame.mixer.music.stop()
-            pygame.mixer.music.unload()
-            pygame.mixer.music.load('Поражение.mp3')
-            pygame.mixer.music.play()
-            TRY_GAME = False
+        pygame.display.set_caption(f'Питон длинной {points} попугаев') #Выводим в заголовке кол. очков  
     else: #Выводим в header текст при поражении.
-        display_text(f'Вы набрали {points} попугаев, но не хватило на крылышко', 22 ,RECT_SIZE,RECT_SIZE,COLOR_LIST["красный"])
-        display_text(f'Попробуйте написать свою версию программы ', 22 ,RECT_SIZE,RECT_SIZE*2+1,COLOR_LIST["красный"])
-        TICK += 1
-        if TICK == 20:
-            play_game = False
+        x_row = 0
+        y_col = 0
+        pygame.mixer.music.stop()
+        pygame.mixer.music.unload()
+        if PLAY_SOUND == 0:
+            pygame.mixer.music.load('Поражение.mp3')
+            pygame.mixer.music.play(1)
+            PLAY_SOUND += 1
+        display_text(f'Вы съели {points} попугаев,и не хватило на крылышко', TEXT_SIZE ,RECT_SIZE,RECT_SIZE,COLOR_LIST["красный"])
+        display_text(f'Попробуйте написать свою версию программы ', TEXT_SIZE ,RECT_SIZE,RECT_SIZE*2+1,COLOR_LIST["красный"])
     #Определяем кол. ФПС и обновляем
-    time.tick(2)
+    time.tick(3)
+    pygame.display.flip()
     pygame.display.update()
 
 pygame.mixer.music.stop()
